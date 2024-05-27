@@ -5,6 +5,10 @@
  */
 package recolecciondefrutas;
 
+//Extiende JPanel y maneja la lógica del juego.
+//Crea frutas aleatorias, maneja el tiempo restante y los intentos del jugador.
+//Incluye un Timer para actualizar el juego y un KeyAdapter para manejar la entrada del teclado.
+
 import javax.swing.JPanel; // Importa la creacion un panel en la interfaz gráfica
 import javax.swing.Timer; // Para manejar eventos temporizados
 import java.awt.Font; // Para definir fuentes de texto
@@ -53,10 +57,10 @@ public class JuegoPanel extends JPanel implements ActionListener {
     private void generarFrutas() {
         Random rand = new Random(); // Inicializa un generador de números aleatorios
         frutas.clear(); // Limpia la lista de frutas existentes
-        for (int i = 0; i < 40; i++) { // Itera para generar 35 frutas aleatorias
+        for (int i = 0; i < 40; i++) { // Itera para generar 40 frutas aleatorias
             int x = rand.nextInt(780); // Genera una coordenada x aleatoria dentro del campo de juego
             int y = rand.nextInt(580); // Genera una coordenada y aleatoria dentro del campo de juego
-            int tipo = rand.nextInt(4); // Genera un tipo de fruta aleatorio entre 0 y 3
+            int tipo = rand.nextInt(4); // Genera un tipo de fruta aleatorio entre 0 y 4
             frutas.add(new Fruta(x, y, tipo)); // Agrega una nueva fruta a la lista de frutas en la posición generada
         }
     }
@@ -83,64 +87,72 @@ public class JuegoPanel extends JPanel implements ActionListener {
     
     // Algoritmo voraz para recomendar al jugador cuál fruta recoger primero
     private String determinarFrutaRecomendada() {
+         // Mapas para almacenar la suma de puntajes y la cantidad de frutas por color
         Map<Color, Integer> sumaPuntajePorColor = new HashMap<>();
         Map<Color, Integer> cantidadPorColor = new HashMap<>();
-        
-        // Calcular el puntaje total y la cantidad de frutas por color
+    
+         // Calcular el puntaje total y la cantidad de frutas por color
         for (Fruta fruta : frutas) {
-            Color color = fruta.getColor();
-            sumaPuntajePorColor.put(color, sumaPuntajePorColor.getOrDefault(color, 0) + fruta.getValor());
-            cantidadPorColor.put(color, cantidadPorColor.getOrDefault(color, 0) + 1);
+             Color color = fruta.getColor(); // Obtiene el color de la fruta
+             // Suma el puntaje de la fruta al color correspondiente
+             sumaPuntajePorColor.put(color, sumaPuntajePorColor.getOrDefault(color, 0) + fruta.getValor());
+             // Incrementa la cantidad de frutas del color correspondiente
+             cantidadPorColor.put(color, cantidadPorColor.getOrDefault(color, 0) + 1);
         }
-        
-        // Calcular el puntaje promedio por color
+    
+        // Map para almacenar el puntaje promedio por color
         Map<Color, Double> puntajePromedioPorColor = new HashMap<>();
         for (Color color : sumaPuntajePorColor.keySet()) {
-            int sumaPuntaje = sumaPuntajePorColor.get(color);
-            int cantidad = cantidadPorColor.get(color);
+            int sumaPuntaje = sumaPuntajePorColor.get(color); // Obtiene la suma de puntajes del color
+            int cantidad = cantidadPorColor.get(color); // Obtiene la cantidad de frutas del color
+            // Calcula y almacena el puntaje promedio del color
             puntajePromedioPorColor.put(color, (double) sumaPuntaje / cantidad);
         }
-        
+    
         // Determinar el color con el mayor puntaje promedio
-        Color colorPrioritario = null;
-        double maxPuntajePromedio = 0;
-        for (Map.Entry<Color, Double> entry : puntajePromedioPorColor.entrySet()) {
-            if (entry.getValue() > maxPuntajePromedio) {
-                maxPuntajePromedio = entry.getValue();
-                colorPrioritario = entry.getKey();
+        Color colorPrioritario = null; // Variable para almacenar el color con mayor puntaje promedio
+        double maxPuntajePromedio = 0; // Variable para almacenar el mayor puntaje promedio encontrado
+            for (Map.Entry<Color, Double> entry : puntajePromedioPorColor.entrySet()) {
+                if (entry.getValue() > maxPuntajePromedio) { // Compara el puntaje promedio actual con el máximo encontrado
+                maxPuntajePromedio = entry.getValue(); // Actualiza el máximo puntaje promedio
+                colorPrioritario = entry.getKey(); // Actualiza el color prioritario
             }
         }
-        
-        return obtenerNombreColor(colorPrioritario);
+    
+        return obtenerNombreColor(colorPrioritario); // Devuelve el nombre del color prioritario
     }
 
-    // Obtener el nombre del color para mostrar en el mensaje
+    // Método para obtener el nombre de un color
     private String obtenerNombreColor(Color color) {
+        // Devuelve el nombre del color basado en su valor RGB
         if (color.equals(Color.RED)) return "Rojo";
         if (color.equals(Color.GREEN)) return "Verde";
         if (color.equals(Color.BLUE)) return "Azul";
         if (color.equals(Color.ORANGE)) return "Naranja";
-        return "Desconocido";
+        return "Desconocido"; // Devuelve "Desconocido" si el color no coincide con los anteriores
     }
 
+    // Método que dibuja los elementos del juego en el panel
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        jugador.dibujar(g);
+        super.paintComponent(g); // Llama al método paintComponent de la superclase
+        jugador.dibujar(g); // Dibuja al jugador en el panel
         for (Fruta fruta : frutas) {
-            fruta.dibujar(g);
+            fruta.dibujar(g); // Dibuja cada fruta en el panel
         }
-        dibujarInfo(g);
+        dibujarInfo(g); // Dibuja la información del juego en el panel
     }
-    
+
+    // Método que dibuja la información del juego en el panel
     private void dibujarInfo(Graphics g) {
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Puntaje: " + jugador.getPuntaje(), 10, 30);
-        g.drawString("Tiempo: " + tiempoRestante, 10, 60);
-        g.drawString("Intentos: " + intentos, 10, 90);
+        g.setColor(Color.BLACK); // Establece el color del texto en negro
+        g.setFont(new Font("Arial", Font.BOLD, 20)); // Establece la fuente del texto
+        g.drawString("Puntaje: " + jugador.getPuntaje(), 10, 30); // Dibuja el puntaje del jugador
+        g.drawString("Tiempo: " + tiempoRestante, 10, 60); // Dibuja el tiempo restante
+        g.drawString("Intentos: " + intentos, 10, 90); // Dibuja la cantidad de intentos restantes
     }
-    
+
+    // Método que maneja los eventos de temporización del juego
     @Override
     public void actionPerformed(ActionEvent e) {
         if (!juegoTerminado) {
@@ -148,56 +160,60 @@ public class JuegoPanel extends JPanel implements ActionListener {
             Iterator<Fruta> it = frutas.iterator();
             while (it.hasNext()) {
                 Fruta fruta = it.next();
-                if (jugador.getRect().intersects(fruta.getRect())) {
-                    jugador.recolectarFruta(fruta);
-                    it.remove();
+                if (jugador.getRect().intersects(fruta.getRect())) { // Verifica si el jugador ha recolectado la fruta
+                   jugador.recolectarFruta(fruta); // Recolecta la fruta si el jugador la toca
+                   it.remove(); // Elimina la fruta recolectada de la lista
                 }
             }
             // Si se recolectaron todas las frutas, termina el juego
             if (frutas.isEmpty()) {
                 terminarJuego();
             }
-            repaint();
+            repaint(); // Vuelve a dibujar el panel
         }
     }
-    
+
+    // Clase interna para manejar los eventos de teclado
     private class TAdapter extends KeyAdapter {
-        @Override
-        public void keyPressed(KeyEvent e) {
+       @Override
+       public void keyPressed(KeyEvent e) {
             if (!juegoTerminado) {
-                int key = e.getKeyCode();
+                int key = e.getKeyCode(); // Obtiene el código de la tecla presionada
+                // Mueve al jugador basado en la tecla presionada
                 if (key == KeyEvent.VK_LEFT) {
-                    jugador.mover(-10, 0);
+                   jugador.mover(-10, 0); // Mueve al jugador a la izquierda
                 } else if (key == KeyEvent.VK_RIGHT) {
-                    jugador.mover(10, 0);
+                   jugador.mover(10, 0); // Mueve al jugador a la derecha
                 } else if (key == KeyEvent.VK_UP) {
-                    jugador.mover(0, -10);
+                   jugador.mover(0, -10); // Mueve al jugador hacia arriba
                 } else if (key == KeyEvent.VK_DOWN) {
-                    jugador.mover(0, 10);
+                   jugador.mover(0, 10); // Mueve al jugador hacia abajo
                 }
-                repaint();
+                repaint(); // Vuelve a dibujar el panel
             }
         }
     }
-    
+
+    // Clase interna para manejar el temporizador del juego
     private class TiempoListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (!juegoTerminado) {
                 if (tiempoRestante > 0) {
-                    tiempoRestante--;
+                    tiempoRestante--; // Decrementa el tiempo restante
                 } else {
-                    intentos--;
+                    intentos--; // Decrementa la cantidad de intentos restantes
                     if (intentos > 0) {
+                        // Muestra un cuadro de diálogo con los intentos restantes
                         JOptionPane.showMessageDialog(JuegoPanel.this, "Intentos restantes: " + intentos, "Intento fallido", JOptionPane.INFORMATION_MESSAGE);
-                        reiniciarJuego();
+                        reiniciarJuego(); // Reinicia el juego
                     } else {
-                        terminarJuego();
-                        System.out.println("Fin del juego. No hay más intentos.");
+                        terminarJuego(); // Termina el juego si no hay más intentos
+                        System.out.println("Fin del juego. No hay más intentos."); // Muestra un mensaje en la consola
                     }
-                }
-                repaint();
+                }  
+                repaint(); // Vuelve a dibujar el panel
             }
         }
-    }
+    }       
 }

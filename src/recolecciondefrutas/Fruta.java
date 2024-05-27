@@ -5,6 +5,9 @@
  */
 package recolecciondefrutas;
 
+//Define una fruta con su posición, tipo, valor y color.
+//Tiene métodos para dibujar la fruta y obtener su rectángulo para detección de colisiones.
+
 import java.awt.Color; // Para manejar colores
 import java.awt.Graphics; // Para dibujar en pantalla
 import java.awt.Rectangle; // Para representar áreas rectangulares

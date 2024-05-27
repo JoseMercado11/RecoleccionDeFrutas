@@ -5,6 +5,8 @@
  */
 package recolecciondefrutas;
 
+//Crea la ventana del juego y añade el JuegoPanel.
+
 /**
  *
  * @author josel
